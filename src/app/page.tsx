@@ -37,17 +37,23 @@ declare global {
   }
 }
 
-
 const ChatBubble = ({ message }: { message: Message }) => {
+  const isUser = message.role === "user";
+
   return (
     <div
       className={cn(
-        "max-w-[75%] px-4 py-2 rounded-2xl shadow-sm mb-4 whitespace-pre-wrap",
-        message.role === "user"
-          ? "bg-blue-500 text-white self-end"
-          : "bg-gray-200 text-black self-start"
+        "relative max-w-[75%] px-4 py-3 rounded-2xl shadow mb-4 whitespace-pre-wrap",
+        isUser
+          ? "bg-blue-600 text-white self-end"
+          : "bg-neutral-700 text-neutral-100 self-start border border-neutral-600"
       )}
     >
+      {!isUser && (
+        <span className="absolute -top-2 left-3 text-xs text-blue-400 font-semibold bg-neutral-900 px-1 rounded">
+          AI
+        </span>
+      )}
       {message.content}
     </div>
   );
@@ -58,7 +64,7 @@ export default function ChatPage() {
   const [input, setInput] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [fileUploaded, setFileUploaded] = useState<File | null>(null);
-  const [pdfText, setPdfText] = useState<string>(""); // ✅ PDF parsed content
+  const [pdfText, setPdfText] = useState<string>("");
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   const scrollToBottom = () => {
@@ -99,13 +105,11 @@ export default function ChatPage() {
           const content = await page.getTextContent();
           const pageText = content.items
             .map((item: any) => (typeof item.str === "string" ? item.str : ""))
-
             .join(" ");
           fullText += `\n\nPage ${i}:\n${pageText}`;
         }
 
-        console.log("Parsed PDF Content:\n", fullText);
-        setPdfText(fullText); // ✅ Store parsed content
+        setPdfText(fullText);
         setMessages((prev) => [
           ...prev,
           {
@@ -187,44 +191,48 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="flex flex-col items-center h-screen p-4 bg-gray-50">
-      <h1 className="text-3xl font-bold text-gray-800 mb-4">Ask AI</h1>
+    <div className="flex flex-col items-center h-screen p-4 bg-neutral-900 text-neutral-100 transition-colors duration-300">
+      <h1 className="text-3xl font-bold mb-4 text-white">Ask AI</h1>
 
-      <Card className="flex flex-col w-full max-w-2xl h-full">
+      <Card className="flex flex-col w-full max-w-2xl h-full bg-neutral-800 text-neutral-100 border border-neutral-700">
         <CardContent className="flex flex-col flex-1 p-4 overflow-hidden">
           <div className="flex-1 overflow-hidden">
-            <ScrollArea className="h-full">
+            <ScrollArea className="h-full pr-2">
               <div className="flex flex-col">
                 {messages.map((msg, idx) => (
                   <ChatBubble key={idx} message={msg} />
                 ))}
-                
                 <div ref={bottomRef} />
               </div>
             </ScrollArea>
           </div>
 
           <div className="mt-4 flex flex-col gap-2">
-            
             <Input
               type="file"
               accept="application/pdf"
               onChange={handleFileUpload}
+              className="file:bg-neutral-700 file:text-white file:border-none"
             />
             {fileUploaded && (
-                  <div className="text-sm text-gray-600 mb-2 ml-2">
-                    📎 1 file uploaded: <strong>{fileUploaded.name}</strong>
-                  </div>
-                )}
-                <div className="flex items-center gap-2">
+              <div className="text-sm text-neutral-400 mb-2 ml-2">
+                📎 1 file uploaded: <strong>{fileUploaded.name}</strong>
+              </div>
+            )}
+            <div className="flex items-center gap-2">
               <Input
                 placeholder="Type your message..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 disabled={loading}
+                className="bg-neutral-700 text-white border-none"
               />
-              <Button onClick={sendMessage} disabled={loading}>
+              <Button
+                onClick={sendMessage}
+                disabled={loading}
+                className="bg-blue-600 hover:bg-blue-500 text-white"
+              >
                 {loading ? "Sending..." : "Send"}
               </Button>
             </div>

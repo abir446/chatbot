@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Ask AI",
-  description: "chatbot using Gemini AI",
+  description: "Chatbot using Gemini AI",
 };
 
 export default function RootLayout({
@@ -23,9 +23,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`
+          ${geistSans.variable} 
+          ${geistMono.variable} 
+          bg-neutral-900 
+          text-neutral-100 
+          min-h-screen 
+          antialiased 
+          transition-colors 
+          duration-300 
+          ease-in-out
+        `}
       >
         {children}
       </body>
